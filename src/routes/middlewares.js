@@ -1,5 +1,6 @@
 import { jwtSecretKey } from "../config";
 import jwt from 'jsonwebtoken';
+import * as error from './error';
 
 export const logger = (req, res, next) => {
   const info = {
@@ -77,7 +78,7 @@ export const requireAuth = (req, res, next) => {
   const authorization = req.headers['authorization'];
 
   jwt.verify(authorization, jwtSecretKey, (err, authData) => {
-    if (err) next(err);
+    if (err) next(error.auth(err));
     req.authData = authData;
     next();
   });

@@ -29,3 +29,7 @@ export const database = err => {
   if (err.errors) errText += ` (${err.errors[0].message})`;
   return idErr(500, '데이터베이스 오류', errText);
 }
+
+export const auth = err => {
+  return idErr(401, '토큰 인증 오류', err);
+}
