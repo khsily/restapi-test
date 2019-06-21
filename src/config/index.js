@@ -30,3 +30,5 @@ export function appConfig() {
 export function dbConfig() {
   return isDev() ? config.dev.database : config.prod.database;
 }
+
+export const jwtSecretKey = "34ludafndslfew";

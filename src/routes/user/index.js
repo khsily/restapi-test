@@ -1,13 +1,18 @@
 import express from "express";
 import { sha512 } from 'js-sha512';
 import Joi from 'joi';
+import jwt from 'jsonwebtoken';
+
 import { User } from '../../db/models';
 import * as error from '../error';
+import { jwtSecretKey } from "../../config";
+import { requireAuth } from "../middlewares";
 
 const user = express.Router();
 
 user.post('/signin', signin);
 user.post('/signup', signup);
+user.post('/update/:user_id', requireAuth, update);
 
 async function signin(req, res, next) {
   const signinShcema = Joi.object().keys({
@@ -19,12 +24,15 @@ async function signin(req, res, next) {
     const body = await Joi.validate(req.body, signinShcema);
     const { email, password } = body;
 
-    const result = await User.findOne({
+    const user = await User.findOne({
       where: { email, password: sha512(password) },
     });
 
-    res.locals.payload = result;
-    next();
+    jwt.sign({ user }, jwtSecretKey, (err, token) => {
+      user.dataValues.token = token;
+      res.locals.payload = user;
+      next();
+    });
   } catch (e) {
     if (e.isJoi) next(error.parameter(e));
     else next(error.database(e));
@@ -46,6 +54,36 @@ async function signup(req, res, next) {
       email: email,
       password: sha512(password),
       nickname: nickname,
+    });
+
+    res.locals.payload = result;
+    next();
+  } catch (e) {
+    if (e.isJoi) next(error.parameter(e));
+    else next(error.database(e));
+  }
+}
+
+async function update(req, res, next) {
+  const updateSchema = Joi.object().keys({
+    email: Joi.string().email(),
+    password: Joi.string(),
+    nickname: Joi.string(),
+  });
+
+  try {
+    const body = await Joi.validate(req.body, updateSchema);
+    const { email, password, nickname } = body;
+    const { user_id } = req.params;
+
+    await User.update({
+      email: email,
+      password: password && sha512(password),
+      nickname: nickname,
+    }, { where: { user_id } });
+
+    const result = await User.findOne({
+      where: { user_id },
     });
 
     res.locals.payload = result;
