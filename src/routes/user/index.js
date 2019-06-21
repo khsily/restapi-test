@@ -12,7 +12,7 @@ const user = express.Router();
 
 user.post('/signin', signin);
 user.post('/signup', signup);
-user.post('/update/:user_id', requireAuth, update);
+user.post('/update', requireAuth, update);
 
 async function signin(req, res, next) {
   const signinShcema = Joi.object().keys({
@@ -74,7 +74,7 @@ async function update(req, res, next) {
   try {
     const body = await Joi.validate(req.body, updateSchema);
     const { email, password, nickname } = body;
-    const { user_id } = req.params;
+    const { user_id } = req.authData.user;
 
     await User.update({
       email: email,
