@@ -10,10 +10,10 @@ const routes = express.Router();
 routes.use('/user', user);
 
 //middlewares
-// routes.use(middlewares.logger);
-// routes.use(middlewares.resultHandler);
-// routes.use(middlewares.notFoundCommand);
-// routes.use(middlewares.defaultErrorLogger);
-// routes.use(middlewares.defaultErrorHandler);
+routes.use(middlewares.logger);
+routes.use(middlewares.resultHandler);
+routes.use(middlewares.notFoundCommand);
+routes.use(middlewares.defaultErrorLogger);
+routes.use(middlewares.defaultErrorHandler);
 
 export default routes;
