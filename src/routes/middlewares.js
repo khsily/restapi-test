@@ -1,3 +1,5 @@
+import { jwtSecretKey } from "../config";
+import jwt from 'jsonwebtoken';
 
 export const logger = (req, res, next) => {
   const info = {
@@ -67,5 +69,16 @@ export const defaultErrorHandler = (err, req, res, next) => {
     code,
     msg,
     error: id_error,
+  });
+}
+
+// token 검증
+export const requireAuth = (req, res, next) => {
+  const authorization = req.headers['authorization'];
+
+  jwt.verify(authorization, jwtSecretKey, (err, authData) => {
+    if (err) next(err);
+    req.authData = authData;
+    next();
   });
 }
