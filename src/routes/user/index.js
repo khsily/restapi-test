@@ -10,7 +10,25 @@ user.post('/signin', signin);
 user.post('/signup', signup);
 
 async function signin(req, res, next) {
-  
+  const signinShcema = Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+  });
+
+  try {
+    const body = await Joi.validate(req.body, signinShcema);
+    const { email, password } = body;
+
+    const result = await User.findOne({
+      where: { email, password: sha512(password) },
+    });
+
+    res.locals.payload = result;
+    next();
+  } catch (e) {
+    if (e.isJoi) next(error.parameter(e));
+    else next(error.database(e));
+  }
 }
 
 async function signup(req, res, next) {
