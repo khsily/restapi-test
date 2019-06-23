@@ -12,7 +12,7 @@ const user = express.Router();
 
 user.post('/signin', signin);
 user.post('/signup', signup);
-user.put('/update', requireAuth, updateUser);
+user.put('/', requireAuth, updateUser);
 
 async function signin(req, res, next) {
   const signinShcema = Joi.object().keys({

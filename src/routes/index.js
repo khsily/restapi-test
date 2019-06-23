@@ -10,9 +10,9 @@ const routes = express.Router();
 
 //routes
 routes.get('/ping', (req, res) => res.send('pong'));
-routes.use('/user', user);
+routes.use('/users', user);
 routes.use('/profile', profile);
-routes.use('/post', post);
+routes.use('/posts', post);
 
 //middlewares
 routes.use(middlewares.logger);
