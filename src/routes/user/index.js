@@ -39,7 +39,6 @@ async function signin(req, res, next) {
   }
 }
 
-// TODO: 유저정보에서 password 빼기
 async function signup(req, res, next) {
   const signupSchema = Joi.object().keys({
     email: Joi.string().email().required(),
@@ -83,11 +82,11 @@ async function updateUser(req, res, next) {
       nickname: nickname,
     }, { where: { user_id } });
 
-    const result = await User.findOne({
+    const user = await User.findOne({
       where: { user_id },
     });
 
-    res.locals.payload = result;
+    res.locals.payload = user.info;
     next();
   } catch (e) {
     if (e.isJoi) next(error.parameter(e));
