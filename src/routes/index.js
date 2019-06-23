@@ -4,12 +4,15 @@ import * as middlewares from './middlewares';
 
 import user from './user';
 import profile from './profile';
+import post from './post';
 
 const routes = express.Router();
 
 //routes
+routes.get('/ping', (req, res) => res.send('pong'));
 routes.use('/user', user);
 routes.use('/profile', profile);
+routes.use('/post', post);
 
 //middlewares
 routes.use(middlewares.logger);
