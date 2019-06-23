@@ -58,6 +58,7 @@ async function createPost(req, res, next) {
   }
 }
 
+// TODO: 자기 게시물만 업데이트 가능하도록 수정
 async function updatePost(req, res, next) {
   const schema = Joi.object().keys({
     title: Joi.string(),
@@ -86,6 +87,7 @@ async function updatePost(req, res, next) {
   }
 }
 
+// TODO: 자기 게시물만 삭제 가능하도록 수정
 async function deletePost(req, res, next) {
   try {
     const { post_id } = req.params;

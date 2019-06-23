@@ -7,6 +7,9 @@ import { User } from '../../db/models';
 import * as error from '../error';
 import { jwtSecretKey } from "../../config";
 
+// TODO: 비밀번호 sha512 암호화를 프론트단에서 처리하도록 변경
+// TODO: postman 업데이트
+
 const user = express.Router();
 
 user.post('/signin', signin);
