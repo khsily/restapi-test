@@ -12,7 +12,7 @@ const user = express.Router();
 
 user.post('/signin', signin);
 user.post('/signup', signup);
-user.post('/update', requireAuth, update);
+user.put('/update', requireAuth, updateUser);
 
 async function signin(req, res, next) {
   const signinShcema = Joi.object().keys({
@@ -30,7 +30,7 @@ async function signin(req, res, next) {
 
     jwt.sign({ user }, jwtSecretKey, (err, token) => {
       user.dataValues.token = token;
-      res.locals.payload = user;
+      res.locals.payload = user.info;
       next();
     });
   } catch (e) {
@@ -39,6 +39,7 @@ async function signin(req, res, next) {
   }
 }
 
+// TODO: 유저정보에서 password 빼기
 async function signup(req, res, next) {
   const signupSchema = Joi.object().keys({
     email: Joi.string().email().required(),
@@ -50,13 +51,13 @@ async function signup(req, res, next) {
     const body = await Joi.validate(req.body, signupSchema);
     const { email, password, nickname } = body;
 
-    const result = await User.create({
+    const user = await User.create({
       email: email,
       password: sha512(password),
       nickname: nickname,
     });
 
-    res.locals.payload = result;
+    res.locals.payload = user.info;
     next();
   } catch (e) {
     if (e.isJoi) next(error.parameter(e));
@@ -64,7 +65,7 @@ async function signup(req, res, next) {
   }
 }
 
-async function update(req, res, next) {
+async function updateUser(req, res, next) {
   const updateSchema = Joi.object().keys({
     email: Joi.string().email(),
     password: Joi.string(),

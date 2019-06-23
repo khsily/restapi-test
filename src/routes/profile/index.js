@@ -6,31 +6,31 @@ import { requireAuth } from "../middlewares";
 
 const profile = express.Router();
 
-profile.get('/currentUser', requireAuth, currentUser);
-profile.get('/info/:user_id', requireAuth, info);
+profile.get('/currentUser', requireAuth, fetchCurrentUser);
+profile.get('/info/:user_id', requireAuth, fetchUserInfo);
 
-async function currentUser(req, res, next) {
+async function fetchCurrentUser(req, res, next) {
   try {
     const { user_id } = req.authData.user;
-    const result = await User.findOne({
+    const user = await User.findOne({
       where: { user_id },
     });
 
-    res.locals.payload = result;
+    res.locals.payload = user.info;
     next();
   } catch (e) {
     next(error.database(e));
   }
 }
 
-async function info(req, res, next) {
+async function fetchUserInfo(req, res, next) {
   try {
     const { user_id } = req.params;
-    const result = await User.findOne({
+    const user = await User.findOne({
       where: { user_id },
     });
 
-    res.locals.payload = result;
+    res.locals.payload = user.info;
     next();
   } catch (e) {
     next(error.database(e));
