@@ -1,6 +1,5 @@
 import express from "express";
 import Joi from 'joi';
-import { sha512 } from 'js-sha512';
 
 import { User } from '../../db/models';
 import * as error from '../error';
@@ -53,9 +52,9 @@ async function updateUserInfo(req, res, next) {
     const { user_id } = req.authData.user;
 
     await User.update({
-      email: email,
-      password: password && sha512(password),
-      nickname: nickname,
+      email,
+      password,
+      nickname,
     }, { where: { user_id } });
 
     const user = await User.findOne({

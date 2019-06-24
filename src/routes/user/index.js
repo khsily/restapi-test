@@ -1,14 +1,10 @@
 import express from "express";
-import { sha512 } from 'js-sha512';
 import Joi from 'joi';
 import jwt from 'jsonwebtoken';
 
 import { User } from '../../db/models';
 import * as error from '../error';
 import { jwtSecretKey } from "../../config";
-
-// TODO: 비밀번호 sha512 암호화를 프론트단에서 처리하도록 변경
-// TODO: postman 업데이트
 
 const user = express.Router();
 
@@ -26,8 +22,10 @@ async function signin(req, res, next) {
     const { email, password } = body;
 
     const user = await User.findOne({
-      where: { email, password: sha512(password) },
+      where: { email, password },
     });
+
+    if (!user) next(error.auth(Error('아이디 혹은 비밀번호가 틀립니다.')));
 
     jwt.sign({ user }, jwtSecretKey, (err, token) => {
       user.dataValues.token = token;
@@ -53,7 +51,7 @@ async function signup(req, res, next) {
 
     const user = await User.create({
       email: email,
-      password: sha512(password),
+      password: password,
       nickname: nickname,
     });
 
