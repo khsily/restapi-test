@@ -1,7 +1,7 @@
 import express from 'express';
 import Joi from 'joi';
 
-import { Post } from '../../db/models';
+import { Post, Like } from '../../db/models';
 import * as error from '../error';
 import { requireAuth } from "../middlewares";
 
@@ -12,6 +12,8 @@ post.get('/:post_id', requireAuth, fetchPostDetail);
 post.post('/', requireAuth, createPost);
 post.put('/:post_id', requireAuth, updatePost);
 post.delete('/:post_id', requireAuth, deletePost);
+post.get('/like/:post_id', fetchPostLikeCount);
+post.put('/like/:post_id', requireAuth, likePost);
 
 async function fetchPostList(req, res, next) {
   try {
@@ -113,6 +115,42 @@ async function deletePost(req, res, next) {
     });
 
     res.locals.payload = { deleted: post_id };
+    next();
+  } catch (e) {
+    if (e.isJoi) next(error.parameter(e));
+    else next(error.database(e));
+  }
+}
+
+async function fetchPostLikeCount(req, res, next) {
+  try {
+    const { post_id } = req.params;
+    const likeCount = await Like.count({ where: { post_id } });
+    res.locals.payload = { likeCount };
+    next();
+  } catch (e) {
+    next(error.database(e));
+  }
+}
+
+async function likePost(req, res, next) {
+  const schema = Joi.object().keys({
+    positive: Joi.boolean().required(),
+  });
+
+  try {
+    const body = await Joi.validate(req.body, schema);
+    const { positive } = body;
+    const { post_id } = req.params;
+    const { user_id } = req.authData.user;
+
+    await Like.createOrUpdate({
+      positive,
+      user_id,
+      post_id,
+    });
+
+    res.locals.payload = { positive };
     next();
   } catch (e) {
     if (e.isJoi) next(error.parameter(e));

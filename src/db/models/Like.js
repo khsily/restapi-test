@@ -4,7 +4,25 @@ import Post from './Post';
 import User from './User';
 
 class Like extends Model {
+  static async createOrUpdate(params) {
+    const { positive, user_id, post_id } = params;
+    const like = await this.findOne({ where: { post_id, user_id } });
 
+    if (!like) { // Create new like if not exists
+      return await this.create({
+        positive,
+        user_id,
+        post_id,
+      });
+    } else { // Update like
+      return await this.update({ positive }, {
+        where: {
+          user_id,
+          post_id,
+        }
+      });
+    }
+  }
 }
 
 Like.init(
