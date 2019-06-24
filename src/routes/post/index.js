@@ -58,7 +58,6 @@ async function createPost(req, res, next) {
   }
 }
 
-// TODO: 자기 게시물만 업데이트 가능하도록 수정
 async function updatePost(req, res, next) {
   const schema = Joi.object().keys({
     title: Joi.string(),
@@ -70,12 +69,21 @@ async function updatePost(req, res, next) {
     const { title, content } = body;
     const { post_id } = req.params;
 
+    let post = await Post.findOne({
+      where: { post_id },
+      attributes: ['user_id'],
+    });
+
+    if (post.user_id !== req.authData.user.user_id) {
+      next(error.owner(Error("Only owner can access to this method")));
+    }
+
     await Post.update({
       title: title,
       content: content,
     }, { where: { post_id } });
 
-    const post = await Post.findOne({
+    post = await Post.findOne({
       where: { post_id },
     });
 
@@ -87,10 +95,18 @@ async function updatePost(req, res, next) {
   }
 }
 
-// TODO: 자기 게시물만 삭제 가능하도록 수정
 async function deletePost(req, res, next) {
   try {
     const { post_id } = req.params;
+
+    let post = await Post.findOne({
+      where: { post_id },
+      attributes: ['user_id'],
+    });
+
+    if (post.user_id !== req.authData.user.user_id) {
+      next(error.owner(Error("Only owner can access to this method")));
+    }
 
     await Post.destroy({
       where: { post_id }
