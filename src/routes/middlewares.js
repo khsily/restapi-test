@@ -25,7 +25,7 @@ export const resultHandler = (req, res, next) => {
   if (payload) {
     const data = {
       valid: true,
-      code: 200,
+      status: 200,
       msg: '정상 처리',
       payload,
     };
@@ -43,7 +43,7 @@ export const notFoundCommand = (req, res) => {
   res.status(404);
   res.send({
     valid: false,
-    code: 404,
+    status: 404,
     msg: 'Not Found'
   });
 }
@@ -51,25 +51,25 @@ export const notFoundCommand = (req, res) => {
 
 //기본 에러 로거
 export const defaultErrorLogger = (err, req, res, next) => {
-  console.log('######## 에러 발생 ########');
-  console.log(JSON.stringify(err, null, 2));
-  console.log('###########################');
+  console.error(`######## 에러 발생 ########
+${JSON.stringify(err, null, 2)}
+###########################`);
   next(err);
 }
 
+// 기본 에러 핸들러
 export const defaultErrorHandler = (err, req, res, next) => {
-  const { id_code, id_msg, id_error } = err;
-  let code, msg;
+  let { status, msg, error } = err;
 
-  code = id_code || 500;
-  msg = id_msg || '알 수 없는 오류';
+  status = status || 500;
+  msg = msg || '알 수 없는 오류';
 
-  res.status(code);
+  res.status(status);
   res.send({
     valid: false,
-    code,
+    status,
     msg,
-    error: id_error,
+    error,
   });
 }
 
