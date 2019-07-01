@@ -19,6 +19,7 @@ class Post extends Model {
         required: false,
       }],
       group: 'Post.post_id',
+      subQuery: false,
       ...options,
     });
   }
