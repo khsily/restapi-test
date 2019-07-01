@@ -1,9 +1,27 @@
 import Sequelize, { Model } from 'sequelize';
 import sequelize from '../sequelize';
 import User from './User';
+import Like from './Like';
 
 class Post extends Model {
-
+  static findWithLikeCount(options) {
+    return this.findAll({
+      attributes: [
+        'post_id',
+        'title',
+        'content',
+        [sequelize.fn('COUNT', sequelize.col('like_id')), 'like_count']
+      ],
+      include: [{
+        model: Like,
+        attributes: [],
+        where: { positive: true },
+        required: false,
+      }],
+      group: 'Post.post_id',
+      ...options,
+    });
+  }
 }
 
 Post.init(

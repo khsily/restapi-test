@@ -5,6 +5,8 @@ import { Post, Like } from '../../db/models';
 import * as error from '../error';
 import { requireAuth } from "../middlewares";
 
+// TODO: 페이징 추가
+
 const post = express.Router();
 
 post.get('/', fetchPostList);
@@ -17,7 +19,7 @@ post.put('/like/:post_id', requireAuth, likePost);
 
 async function fetchPostList(req, res, next) {
   try {
-    const posts = await Post.findAll();
+    const posts = await Post.findWithLikeCount();
     res.locals.payload = posts;
     next();
   } catch (e) {
